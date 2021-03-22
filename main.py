@@ -15,7 +15,7 @@ endpoint = 'http://den01jpx.us.oracle.com:8080/';
 
 server = jenkins.Jenkins(endpoint, username='ociui_user', password='ociui4@4')
 
-@app.route('/', methods=['GET'])
+@app.route('/RC/', methods=['GET'])
 def getJobTest():
     # polling.poll(
     #     lambda: requests.get('http://google.com').status_code == 200,
@@ -31,9 +31,10 @@ def getJobTest():
     return "home"
 
 
-@app.route('/<job_name>/', methods=['GET'])
+# @app.route('/<job_name>/', methods=['GET'])
+@app.route('/', methods=['GET'])
 @cross_origin()
-def getJobDetails(job_name):
+def getJobDetails(job_name="RC"):
     # --- add map of all the job names ---- #
     job_name_dict = {
         "Paid LCM Sanity": "SanityPaidADW_19c",
