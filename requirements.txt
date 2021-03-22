@@ -1,0 +1,4 @@
+# Flask Framework
+Flask==1.0.2
+Flask-Cors==1.10.3
+Python-jenkins==0.2
