@@ -22,7 +22,6 @@ def save_job_name_list():
             continue
         build_info = server.get_build_info(job_name, last_build_number)
         git_branch_name = build_info['actions'][1]['lastBuiltRevision']['branch'][0]['name']
-        # pdb.set_trace()
         if 'master' in git_branch_name or 'MasterClone' in git_branch_name:
             name = job_name.split('_')
             if len(name) >= 3:
