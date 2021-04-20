@@ -15,8 +15,8 @@ CORS(app, allow_headers=['Content-Type', 'Access-Control-Allow-Origin',
 endpoint = 'http://den01jpx.us.oracle.com:8080/';
 
 server = jenkins.Jenkins(endpoint, username='ociui_user', password='ociui4@4')
-client = pymongo.MongoClient("localhost", 27017)
-db = client["jenkinsStoreDB"]
+# client = pymongo.MongoClient("localhost", 27017)
+# db = client["jenkinsStoreDB"]
 
 @app.route('/')
 @cross_origin()

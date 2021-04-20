@@ -15,6 +15,7 @@ multi-key-dict==2.0.3
 pbr==5.5.1
 polling==0.3.1
 pycparser==2.20
+pymongo==3.11.3
 python-jenkins==1.7.0
 requests==2.25.1
 six==1.15.0
