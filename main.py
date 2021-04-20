@@ -3,6 +3,8 @@ import jenkins
 from flask_cors import CORS, cross_origin
 import json
 from os import path
+import pymongo
+import time
 import polling
 import re
 import math
@@ -13,6 +15,8 @@ CORS(app, allow_headers=['Content-Type', 'Access-Control-Allow-Origin',
 endpoint = 'http://den01jpx.us.oracle.com:8080/';
 
 server = jenkins.Jenkins(endpoint, username='ociui_user', password='ociui4@4')
+client = pymongo.MongoClient("localhost", 27017)
+db = client["jenkinsStoreDB"]
 
 @app.route('/')
 @cross_origin()
@@ -20,11 +24,12 @@ def welcome():
     return "welcome to jenkins mockup"
 
 
-@app.route('/save_jobname/')
-@cross_origin()
+# @app.route('/save_jobname/')
+# @cross_origin()
 def save_job_name_list():
     jobs = server.get_jobs()
-    master_jobs = [{'sanity': []}, {'feature': []}, {'all': [{'job_name': 'All Suite', 'job_val': 'All Suite'}]}]
+    # master_jobs = [{'sanity': []}, {'feature': []}, {'all': [{'job_name': 'All Suite', 'job_val': 'All Suite'}]}]
+    master_jobs = [{'sanity': []}, {'feature': []}, {'all': []}]
     for i in range(len(jobs)):
         master_job = {}
         job_name = jobs[i]['name']
@@ -36,16 +41,12 @@ def save_job_name_list():
             if len(name) >= 2:
                 master_job['job_name'] = ' '.join(name)
                 master_job['job_val'] = job_name
-        # master_jobs.append(master_job) if master_job else None
         if master_job:
             # if 'sanity' in job_name or 'Sanity' in job_name:
             if job_name.startswith('sanity') or job_name.startswith('Sanity'):
                 master_jobs[0]['sanity'].append(master_job)
             else:
                 master_jobs[1]['feature'].append(master_job)
-            master_jobs[2]['all'].append(master_job)
-    # master_jobs = {'master_jobs': master_jobs}
-
     print(master_jobs)
     myfile = "job_name.json"
 
@@ -57,45 +58,56 @@ def save_job_name_list():
 @app.route('/sanity/', methods=['GET'])
 @cross_origin()
 def get_sanity_job_list():
-    myfile = "job_name.json"
-    if path.exists(myfile):
-        with open(myfile) as f:
-            job_name_map = json.load(f)
-    else:
-        save_job_name_list()
-        with open(myfile) as f:
-            job_name_map = json.load(f)
+    # myfile = "job_name.json"
+    # if path.exists(myfile):
+    #     with open(myfile) as f:
+    #         job_name_map = json.load(f)
+    # else:
+    #     save_job_name_list()
+    #     with open(myfile) as f:
+    #         job_name_map = json.load(f)
 
-    print(job_name_map[0]['sanity'])
-    return job_name_map[0]
+    # print(job_name_map[0]['sanity'])
+    # return job_name_map[0]
+
+    job_name_col = db["job_name_list"]
+    return job_name_col.find_one()['master_jobs'][0]
+
 
 @app.route('/feature/', methods=['GET'])
 @cross_origin()
 def get_feature_job_list():
-    myfile = "job_name.json"
-    if path.exists(myfile):
-        with open(myfile) as f:
-            job_name_map = json.load(f)
-    else:
-        save_job_name_list()
-        with open(myfile) as f:
-            job_name_map = json.load(f)
+    # myfile = "job_name.json"
+    # if path.exists(myfile):
+    #     with open(myfile) as f:
+    #         job_name_map = json.load(f)
+    # else:
+    #     save_job_name_list()
+    #     with open(myfile) as f:
+    #         job_name_map = json.load(f)
+    #
+    # return job_name_map[1]
 
-    return job_name_map[1]
+    job_name_col = db["job_name_list"]
+    return job_name_col.find_one()['master_jobs'][1]
+
 
 @app.route('/all/', methods=['GET'])
 @cross_origin()
 def get_job_name_list():
-    myfile = "job_name.json"
-    if path.exists(myfile):
-        with open(myfile) as f:
-            job_name_map = json.load(f)
-    else:
-        save_job_name_list()
-        with open(myfile) as f:
-            job_name_map = json.load(f)
+    # myfile = "job_name.json"
+    # if path.exists(myfile):
+    #     with open(myfile) as f:
+    #         job_name_map = json.load(f)
+    # else:
+    #     save_job_name_list()
+    #     with open(myfile) as f:
+    #         job_name_map = json.load(f)
+    #
+    # return job_name_map[2]
 
-    return job_name_map[2]
+    job_name_col = db["job_name_list"]
+    return job_name_col.find_one()['master_jobs'][2]
 
 @app.route('/<job_name>/', methods=['GET'])
 @cross_origin()
@@ -208,17 +220,41 @@ def save_all_job_details():
 @app.route('/get_all/', methods=['GET'])
 @cross_origin()
 def get_all_job_details():
-    if path.exists("data.json"):
-        with open('data.json') as f:
-            data = json.load(f)
-    else:
-        save_all_job_details()
-        with open('data.json') as f:
-            data = json.load(f)
-    print('kkkkk.......... ', data)
-    return {'jobs': data}
+    # if path.exists("data.json"):
+    #     with open('data.json') as f:
+    #         data = json.load(f)
+    # else:
+    #     save_all_job_details()
+    #     with open('data.json') as f:
+    #         data = json.load(f)
+    # return {'jobs': data}
+    import pdb
+
+    # pdb.set_trace()
+
+    time.sleep(5)
+    all_job_data_col = db["all_job_data"]
+    time.sleep(5)
+    print(all_job_data_col.find()[0])
+    time.sleep(5)
+    return {'all_job_data': all_job_data_col.find()[0]['all_job_data']}
+    # return "done"
 
 
-if __name__ == '__main__':
-    # app.run()
-    app.run(host='127.0.0.1', port=5000, debug=True)
+# if __name__ == '__main__':
+#     # app.run()
+#     app.run(host='127.0.0.1', port=5000, debug=True)
+
+
+# if 'master' in git_branch_name:
+#     name = job_name.split('_')
+#     if len(name) >= 2:
+#         master_job['job_name'] = ' '.join(name)
+#         master_job['job_val'] = job_name
+# if master_job:
+#     # if 'sanity' in job_name or 'Sanity' in job_name:
+#     if job_name.startswith('sanity') or job_name.startswith('Sanity'):
+#         master_jobs[0]['sanity'].append(master_job)
+#     else:
+#         master_jobs[1]['feature'].append(master_job)
+#     master_jobs[2]['all'].append(master_job)
